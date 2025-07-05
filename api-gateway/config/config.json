@@ -1,0 +1,153 @@
+{
+  "gateway": {
+    "port": "8000",
+    "services": [
+      {
+        "name": "lead",
+        "base_url": "http://ms-gestion-lead:3000",
+        "prefix": "/leads",
+        "timeout": 30,
+        "rate_limit": {
+          "enabled": true,
+          "requests_per_second": 100,
+          "burst_size": 200
+        },
+        "load_balancer": {
+          "enabled": false,
+          "strategy": "round_robin",
+          "backends": [
+            "http://ms-gestion-lead:3000"
+          ]
+        },
+        "health_check": {
+          "enabled": true,
+          "endpoint": "/health",
+          "interval_seconds": 30,
+          "timeout_seconds": 5
+        },
+        "cache": {
+          "enabled": true,
+          "ttl_seconds": 300
+        }
+      },
+      {
+        "name": "persona",
+        "base_url": "http://ms-gestion-persona:8001",
+        "prefix": "/personas",
+        "timeout": 30,
+        "rate_limit": {
+          "enabled": true,
+          "requests_per_second": 100,
+          "burst_size": 200
+        },
+        "load_balancer": {
+          "enabled": false,
+          "strategy": "round_robin",
+          "backends": [
+            "http://ms-gestion-persona:8001"
+          ]
+        },
+        "health_check": {
+          "enabled": true,
+          "endpoint": "/health",
+          "interval_seconds": 30,
+          "timeout_seconds": 5
+        },
+        "cache": {
+          "enabled": true,
+          "ttl_seconds": 300
+        }
+      },
+      {
+        "name": "poliza",
+        "base_url": "http://ms-gestion-poliza:8002",
+        "prefix": "/polizas",
+        "timeout": 30,
+        "rate_limit": {
+          "enabled": true,
+          "requests_per_second": 100,
+          "burst_size": 200
+        },
+        "load_balancer": {
+          "enabled": false,
+          "strategy": "round_robin",
+          "backends": [
+            "http://ms-gestion-poliza:8002"
+          ]
+        },
+        "health_check": {
+          "enabled": true,
+          "endpoint": "/health",
+          "interval_seconds": 30,
+          "timeout_seconds": 5
+        },
+        "cache": {
+          "enabled": true,
+          "ttl_seconds": 300
+        }
+      },
+      {
+        "name": "gestor",
+        "base_url": "http://ms-gestion-gestor:6000",
+        "prefix": "/gestores",
+        "timeout": 30,
+        "rate_limit": {
+          "enabled": true,
+          "requests_per_second": 100,
+          "burst_size": 200
+        },
+        "load_balancer": {
+          "enabled": false,
+          "strategy": "round_robin",
+          "backends": [
+            "http://ms-gestion-gestor:6000"
+          ]
+        },
+        "health_check": {
+          "enabled": true,
+          "endpoint": "/health",
+          "interval_seconds": 30,
+          "timeout_seconds": 5
+        },
+        "cache": {
+          "enabled": true,
+          "ttl_seconds": 300
+        }
+      },
+      {
+        "name": "captcha",
+        "base_url": "http://ms-validar-recaptcha:1323",
+        "prefix": "/recaptcha",
+        "timeout": 45,
+        "rate_limit": {
+          "enabled": true,
+          "requests_per_second": 50,
+          "burst_size": 100
+        },
+        "load_balancer": {
+          "enabled": false,
+          "strategy": "round_robin",
+          "backends": [
+            "http://ms-validar-recaptcha:1323"
+          ]
+        },
+        "health_check": {
+          "enabled": true,
+          "endpoint": "/recaptcha/health",
+          "interval_seconds": 30,
+          "timeout_seconds": 5
+        },
+        "cache": {
+          "enabled": false,
+          "ttl_seconds": 60
+        }
+      }
+    ]
+  },
+  "auth": {
+    "enabled": false,
+    "jwt_secret": "your-super-secret-jwt-key-change-this-in-production",
+    "token_expiry_hours": 24,
+    "refresh_expiry_hours": 168
+  }
+}

@@ -1,0 +1,110 @@
+# Binarios
+api-gateway
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, construido con `go test -c`
+*.test
+
+# Output de go coverage tool
+*.out
+coverage.html
+
+# Archivos de dependencias de Go
+go.sum
+
+# Archivos específicos del editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Archivos de configuración local
+config/config.local.json
+config/config.dev.json
+.env
+.env.local
+
+# Docker
+.dockerignore
+
+# Temporal
+tmp/
+temp/
+
+# Air (hot reload)
+.air.toml
+tmp/
+
+# Certificados SSL/TLS
+*.pem
+*.key
+*.crt
+
+# Backups
+*.bak
+*.backup
+
+# Cache
+.cache/
+
+# Redis dumps
+dump.rdb
+
+# Métricas y reports
+metrics/
+reports/
+
+# Build artifacts
+dist/
+build/
+
+# Node modules (si usas herramientas de Node)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Python (si usas scripts de Python)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Archivos específicos del proyecto
+*.pid
+*.sock
+
+# Terraform (si usas IaC)
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# Kubernetes secrets
+*secret*.yaml
+*secret*.yml
+
+# Monitoring
+prometheus_data/
+grafana_data/

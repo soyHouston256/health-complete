@@ -1,0 +1,241 @@
+version: '3.8'
+
+services:
+  # ============================================================================
+  # BASES DE DATOS
+  # ============================================================================
+  
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: pass_personas
+      MYSQL_DATABASE: DB_Personas
+      MYSQL_USER: app_user
+      MYSQL_PASSWORD: app_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init-sql:/docker-entrypoint-initdb.d
+    networks:
+      - pacifico_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  postgres:
+    image: postgres:15
+    container_name: postgres_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: personas_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    networks:
+      - pacifico_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================================
+  # MICROSERVICIOS BACKEND
+  # ============================================================================
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api_gateway
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - MS_GESTOR_URL=http://ms-gestion-gestor:6000
+      - MS_LEAD_URL=http://ms-gestion-lead:3000
+      - MS_PERSONA_URL=http://ms-gestion-persona:8001
+      - MS_POLIZA_URL=http://ms-gestion-poliza:8002
+      - MS_RECAPTCHA_URL=http://ms-validar-recaptcha:1323
+    depends_on:
+      ms-gestion-gestor:
+        condition: service_healthy
+      ms-gestion-lead:
+        condition: service_healthy
+      ms-gestion-persona:
+        condition: service_healthy
+      ms-gestion-poliza:
+        condition: service_healthy
+      ms-validar-recaptcha:
+        condition: service_healthy
+    networks:
+      - pacifico_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  ms-gestion-gestor:
+    build:
+      context: ./ms-gestion-gestor
+      dockerfile: Dockerfile
+    container_name: ms_gestion_gestor
+    restart: unless-stopped
+    ports:
+      - "6000:6000"
+    environment:
+      - PORT=6000
+      - HOST=0.0.0.0
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=pass_personas
+      - MYSQL_DATABASE=DB_Personas
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - pacifico_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  ms-gestion-lead:
+    build:
+      context: ./ms-gestion-lead
+      dockerfile: Dockerfile
+    container_name: ms_gestion_lead
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=postgresql://postgres:postgres123@postgres:5432/personas_db
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - pacifico_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  ms-gestion-persona:
+    build:
+      context: ./ms-gestion-persona
+      dockerfile: Dockerfile
+    container_name: ms_gestion_persona
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres123
+      - DB_NAME=personas_db
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - pacifico_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  ms-gestion-poliza:
+    build:
+      context: ./ms-gestion-poliza
+      dockerfile: Dockerfile
+    container_name: ms_gestion_poliza
+    restart: unless-stopped
+    ports:
+      - "8002:8002"
+    environment:
+      - PORT=8002
+      - HOST=0.0.0.0
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=pass_personas
+      - MYSQL_DATABASE=DB_Personas
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - pacifico_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  ms-validar-recaptcha:
+    build:
+      context: ./ms-validar-recaptcha
+      dockerfile: Dockerfile
+    container_name: ms_validar_recaptcha
+    restart: unless-stopped
+    ports:
+      - "1323:1323"
+    environment:
+      - PORT=1323
+      - RECAPTCHA_SECRET_KEY=${RECAPTCHA_SECRET_KEY:-tu_clave_secreta_aqui}
+    networks:
+      - pacifico_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:1323/recaptcha/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================================
+  # SERVICIOS DE SOPORTE
+  # ============================================================================
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 127.0.0.1:8087:8080
+    networks:
+      - pacifico_network
+
+# ============================================================================
+# REDES
+# ============================================================================
+
+networks:
+  pacifico_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# ============================================================================
+# VOLÚMENES
+# ============================================================================
+
+volumes:
+  mysql_data:
+    driver: local
+  postgres_data:
+    driver: local

@@ -1,0 +1,79 @@
+# monitoring/prometheus.yml
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # API Gateway
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: ['api-gateway:8080']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # MS Gestión Gestor
+  - job_name: 'ms-gestion-gestor'
+    static_configs:
+      - targets: ['ms-gestion-gestor:7000']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # MS Gestión Lead
+  - job_name: 'ms-gestion-lead'
+    static_configs:
+      - targets: ['ms-gestion-lead:3000']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # MS Gestión Persona
+  - job_name: 'ms-gestion-persona'
+    static_configs:
+      - targets: ['ms-gestion-persona:8001']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # MS Gestión Poliza
+  - job_name: 'ms-gestion-poliza'
+    static_configs:
+      - targets: ['ms-gestion-poliza:8002']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # MS Validar Recaptcha
+  - job_name: 'ms-validar-recaptcha'
+    static_configs:
+      - targets: ['ms-validar-recaptcha:1323']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # Frontend
+  - job_name: 'pacifico-frontend'
+    static_configs:
+      - targets: ['pacifico-health-insurance:4321']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # Database exporters (si se implementan)
+  - job_name: 'mysql'
+    static_configs:
+      - targets: ['mysql:3306']
+    scrape_interval: 30s
+
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres:5432']
+    scrape_interval: 30s
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+    scrape_interval: 30s

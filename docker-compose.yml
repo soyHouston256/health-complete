@@ -92,9 +92,9 @@ services:
     container_name: ms_gestion_gestor
     restart: unless-stopped
     ports:
-      - "6000:6000"
+      - "6005:6005"
     environment:
-      - PORT=6000
+      - PORT=6005
       - HOST=0.0.0.0
       - MYSQL_HOST=mysql
       - MYSQL_PORT=3306
@@ -107,7 +107,7 @@ services:
     networks:
       - pacifico_network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:6005/health"]
       interval: 30s
       timeout: 10s
       retries: 3

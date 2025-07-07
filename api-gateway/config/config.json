@@ -21,7 +21,7 @@
         },
         "health_check": {
           "enabled": true,
-          "endpoint": "/health",
+          "endpoint": "/leads/health",
           "interval_seconds": 30,
           "timeout_seconds": 5
         },
